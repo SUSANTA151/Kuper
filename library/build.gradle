@@ -1,0 +1,98 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'com.google.devtools.ksp'
+
+android {
+    namespace 'dev.jahir.kuper'
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds true
+        warningsAsErrors true
+        disable 'MissingTranslation',
+                'GoogleAppIndexingWarning',
+                'UnusedResources',
+                'ContentDescription',
+                'RtlSymmetry',
+                'RtlHardcoded',
+                'RtlEnabled'
+    }
+
+    defaultConfig {
+        minSdkVersion Versions.minSdk
+        compileSdk Versions.targetSdk
+        targetSdkVersion Versions.targetSdk
+        versionCode Kuper.version
+        versionName Kuper.versionName
+        vectorDrawables.useSupportLibrary true
+        proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+        consumerProguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                        "room.incremental"     : "true",
+                        "room.expandProjection": "true"]
+            }
+        }
+    }
+
+    buildTypes {
+        buildTypes.each {
+            it.buildConfigField("String", "DASHBOARD_NAME", "\"Kuper\"")
+            it.buildConfigField("String", "DASHBOARD_VERSION", "\"$Kuper.versionName\"")
+        }
+        release {
+            minifyEnabled false
+            proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    packagingOptions {
+        resources {
+            pickFirsts += [
+                    'META-INF/core_debug.kotlin_module',
+                    'META-INF/core_release.kotlin_module',
+                    'META-INF/library_debug.kotlin_module',
+                    'META-INF/library_release.kotlin_module'
+            ]
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api(Libs.frames) {
+        transitive = true
+    }
+    api Libs.dependencies
+}
+
+ext {
+    PUBLISH_GROUP_ID = 'dev.jahir'
+    PUBLISH_VERSION = Kuper.versionName
+    PUBLISH_ARTIFACT_ID = 'Kuper'
+}
+
+apply from: '../lib-artifacts.gradle'
+apply from: "${rootProject.projectDir}/scripts/publish-mavencentral.gradle"

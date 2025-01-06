@@ -93,17 +93,19 @@ data class Component(
 
             val width = bitmap.width
             val height = bitmap.height
-            val pixels = IntArray(width * height)
-            bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+            val newBitmap = bitmap.config?.let { Bitmap.createBitmap(width, height, it) }
+            newBitmap ?: return bitmap
 
             var minX = width
             var minY = height
             var maxX = -1
             var maxY = -1
 
-            val newBitmap = Bitmap.createBitmap(width, height, bitmap.config)
-            var pixel: Int
+            val pixels = IntArray(width * height)
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
+            var pixel: Int
             for (y in 0 until height) {
                 for (x in 0 until width) {
                     val index = y * width + x

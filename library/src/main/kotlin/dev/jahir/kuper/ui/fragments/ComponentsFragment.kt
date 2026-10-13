@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.graphics.drawable.toDrawable
@@ -50,6 +51,11 @@ class ComponentsFragment : BaseFramesFragment<Component>() {
     }
 
     private fun requestStoragePermission() {
+        // Android 13+ never grants this permission, so read the wallpaper without it
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            componentsAdapter.wallpaper = wallpaper
+            return
+        }
         permissionsBuilder(Manifest.permission.READ_EXTERNAL_STORAGE)
             .build()
             .apply {
@@ -94,6 +100,8 @@ class ComponentsFragment : BaseFramesFragment<Component>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // The fast scroller assumes rows of equal height. Full-width section headers break that,
+        // so its thumb would drift and dragging would land on the wrong component
         recyclerView?.setFastScrollEnabled(false)
         val columnsCount =
             context?.integer(dev.jahir.frames.R.integer.wallpapers_columns_count, 2) ?: 2

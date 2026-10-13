@@ -7,9 +7,8 @@ object Libs {
     // Kustom API
     private const val kustomApi = "org.bitbucket.frankmonza:kustomapi:${Versions.kustomApi}@aar"
 
-    // Lifecycle Scope
-    private const val lifecycleScope =
-        "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycleRuntimeKtx}"
+    // OneSignal
+    const val oneSignal = "com.onesignal:OneSignal:${Versions.oneSignal}"
 
-    val dependencies = arrayOf(kustomApi, lifecycleScope)
+    val dependencies = arrayOf(kustomApi)
 }
